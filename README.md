@@ -37,7 +37,7 @@ if there is only a single dispatch.
 
 ```cljs
 {:dispatch-debounce [{:id ::calcaulate-positions-after-resize
-                      :timeout  250
+                      :timeout 250
                       :action :dispatch
                       :event [:recompute-positons]}]}
 ```

@@ -8,12 +8,12 @@
 ;;   the terms of this license.
 ;;   You must not remove this notice, or any others, from this software.
 
-(defproject com.7theta/re-frame-fx "0.1.0"
+(defproject com.7theta/re-frame-fx "0.1.1"
   :description "A set of re-frame effects handlers"
   :url "https://github.com/7theta/re-frame-fx"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[com.7theta/via "0.4.0"]
-                 [re-frame "0.9.4"]]
+  :dependencies [[re-frame "0.10.1"]]
   :scm {:name "git"
         :url "https://github.com/7theta/re-frame-fx"})
+
