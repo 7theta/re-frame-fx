@@ -6,8 +6,8 @@
 [![Dependencies Status](https://jarkeeper.com/7theta/re-frame-fx/status.svg)](https://jarkeeper.com/7theta/re-frame-fx)
 
 A set of [re-frame](https://github.com/Day8/re-frame)
-[Effect Handlers](https://github.com/Day8/re-frame/tree/develop/docs) in
-common use across 7theta projects.
+[Effect Handlers](https://github.com/Day8/re-frame/tree/develop/docs)
+and dispatch functions in common use across 7theta projects.
 
 ## Registering the effects handler
 

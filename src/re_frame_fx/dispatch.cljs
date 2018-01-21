@@ -13,39 +13,38 @@
 
 (def ^:private deferred-actions (atom {}))
 
-;;; Public
+(defn dispatch-debounce
+  [dispatch-map-or-seq]
+  (let [cancel-timeout (fn [id]
+                         (when-let [deferred (get @deferred-actions id)]
+                           (js/clearTimeout (:timer deferred))
+                           (swap! deferred-actions dissoc id)))
+        run-action (fn [action event]
+                     (cond
+                       (= :dispatch action) (dispatch event)
+                       (= :dispatch-n action) (doseq [e event]
+                                                (dispatch e))))]
+    (doseq [{:keys [id timeout action event]}
+            (cond-> dispatch-map-or-seq
+              (not (sequential? dispatch-map-or-seq)) vector)]
+      (cond
+        (#{:dispatch :dispatch-n} action)
+        (do (cancel-timeout id)
+            (swap! deferred-actions assoc id
+                   {:timer (js/setTimeout (fn []
+                                            (cancel-timeout id)
+                                            (run-action action event))
+                                          timeout)}))
 
-(reg-fx
- :dispatch-debounce
- (fn [dispatch-map-or-seq]
-   (let [cancel-timeout (fn [id]
-                          (when-let [deferred (get @deferred-actions id)]
-                            (js/clearTimeout (:timer deferred))
-                            (swap! deferred-actions dissoc id)))
-         run-action (fn [action event]
-                      (cond
-                        (= :dispatch action) (dispatch event)
-                        (= :dispatch-n action) (doseq [e event]
-                                                 (dispatch e))))]
-     (doseq [{:keys [id timeout action event]}
-             (cond-> dispatch-map-or-seq
-               (not (sequential? dispatch-map-or-seq)) vector)]
-       (cond
-         (#{:dispatch :dispatch-n} action)
-         (do (cancel-timeout id)
-             (swap! deferred-actions assoc id
-                    {:timer (js/setTimeout (fn []
-                                             (cancel-timeout id)
-                                             (run-action action event))
-                                           timeout)}))
+        (= :cancel action)
+        (cancel-timeout id)
 
-         (= :cancel action)
-         (cancel-timeout id)
+        (= :flush action)
+        (when-let [{:keys [id action event]} (get @deferred-actions id)]
+          (cancel-timeout id)
+          (run-action action event))
 
-         (= :flush action)
-         (when-let [{:keys [id action event]} (get @deferred-actions id)]
-           (cancel-timeout id)
-           (run-action action event))
+        :else
+        (throw (js/Error (str ":dispatch-debounce invalid action " action)))))))
 
-         :else
-         (throw (js/Error (str ":dispatch-debounce invalid action " action))))))))
+(reg-fx :dispatch-debounce dispatch-debounce)
