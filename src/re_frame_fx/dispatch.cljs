@@ -31,7 +31,9 @@
         (#{:dispatch :dispatch-n} action)
         (do (cancel-timeout id)
             (swap! deferred-actions assoc id
-                   {:timer (js/setTimeout (fn []
+                   {:action action
+                    :event event
+                    :timer (js/setTimeout (fn []
                                             (cancel-timeout id)
                                             (run-action action event))
                                           timeout)}))
@@ -40,7 +42,7 @@
         (cancel-timeout id)
 
         (= :flush action)
-        (when-let [{:keys [id action event]} (get @deferred-actions id)]
+        (when-let [{:keys [action event]} (get @deferred-actions id)]
           (cancel-timeout id)
           (run-action action event))
 
